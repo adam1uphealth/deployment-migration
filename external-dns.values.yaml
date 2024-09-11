@@ -12,4 +12,3 @@ extraArgs:
   - "--aws-zone-type=public"
   - "--aws-zones-cache-duration=1h"
 txtOwnerId: external-dns
-

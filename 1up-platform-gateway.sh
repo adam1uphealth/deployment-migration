@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Absolute path to the 1up-platform-gateway Helm chart
 PATH_TO_CHART=""
 

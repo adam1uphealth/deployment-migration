@@ -3,4 +3,3 @@ serviceAccount:
   name: cert-manager
 crds:
   enabled: true
-
