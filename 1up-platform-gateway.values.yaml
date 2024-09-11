@@ -1,0 +1,77 @@
+# Values for 1up-platform-gateway in 1up-dev2.
+
+certificates:
+  privateCertificateAuthorityARN: "arn:aws:acm-pca:us-east-1:738897926653:certificate-authority/66da960a-b6b4-44f4-9d13-be297db9205a"
+
+gateway:
+  hostname: "gateway.1uphealthdev2.com"
+  ingress:
+    className: alb
+    annotations:
+      "kubernetes.io/ingress.class": alb
+      "alb.ingress.kubernetes.io/scheme": internet-facing
+      "alb.ingress.kubernetes.io/target-type": "ip"
+      "alb.ingress.kubernetes.io/subnets": "subnet-06b44e60b3f75233b,subnet-0be59c99a104bfc4e"
+      "alb.ingress.kubernetes.io/listen-ports": '[{"HTTP": 80}, {"HTTPS": 443}]'
+      "alb.ingress.kubernetes.io/ssl-redirect": "443"
+      "alb.ingress.kubernetes.io/wafv2-acl-arn": "arn:aws:wafv2:us-east-1:738897926653:regional/webacl/core-infra/2fe0558a-52e4-46b8-82ff-798c20a9f42f"
+      "alb.ingress.kubernetes.io/healthcheck-path": "/v1/health"
+      "alb.ingress.kubernetes.io/healthcheck-interval-seconds": "300"
+      "alb.ingress.kubernetes.io/backend-protocol": "HTTPS"
+      "alb.ingress.kubernetes.io/healthcheck-protocol": "HTTPS"
+      "external-dns.alpha.kubernetes.io/hostname": "gateway.1uphealthdev2.com"
+
+  image:
+    tag: "gateway-v1.1.0-9d1d77e"
+
+  autoscaling:
+    enabled: true
+
+  env:
+    REQUEST_TOKEN_LIFETIME: "60"
+    REQUEST_TOKEN_ISSUER: "https://gateway.1uphealthdev2.com/v1/auth"
+    USE_GATEWAY_TOKENS: "false"
+    LOG_LEVEL: info
+
+keycloak:
+  hostname: "keycloak.1uphealthdev2.com"
+  ingress:
+    className: alb
+    annotations:
+      "kubernetes.io/ingress.class": "alb"
+      "alb.ingress.kubernetes.io/scheme": "internet-facing"
+      "alb.ingress.kubernetes.io/target-type": "ip"
+      "alb.ingress.kubernetes.io/subnets": "subnet-06b44e60b3f75233b,subnet-0be59c99a104bfc4e"
+      "alb.ingress.kubernetes.io/listen-ports": '[{"HTTP": 80}, {"HTTPS": 443}]'
+      "alb.ingress.kubernetes.io/ssl-redirect": "443"
+      "alb.ingress.kubernetes.io/wafv2-acl-arn": "arn:aws:wafv2:us-east-1:738897926653:regional/webacl/core-infra/2fe0558a-52e4-46b8-82ff-798c20a9f42f"
+      "alb.ingress.kubernetes.io/backend-protocol": "HTTPS"
+      "alb.ingress.kubernetes.io/healthcheck-protocol": "HTTPS"
+      "alb.ingress.kubernetes.io/actions.redirect-to-auth": '{"Type": "redirect", "RedirectConfig": {"Host": "keycloak.1uphealthdev2.com", "Path": "/auth/admin", "Port": "443", "Protocol": "HTTPS", "StatusCode": "HTTP_301"}}'
+      "external-dns.alpha.kubernetes.io/hostname": "keycloak.1uphealthdev2.com"
+ 
+  serviceAccount:
+    name: keycloak
+    roleARN: ""
+
+  image:
+    repository: 676488440346.dkr.ecr.us-east-1.amazonaws.com/1uphealth/core-infra-keycloak
+    tag: "keycloak-v2.1.0-9d1d77e"
+    pullPolicy: Always
+
+  env:
+    LOG_LEVEL: info
+    HTTP_MAX_QUEUED_REQUESTS: 200
+    SMTP: "false"
+    SMTP_HOST: "email-smtp.us-east-1.amazonaws.com"
+    JVM_ARGS: "-Xms512m -Xmx4096m" # Reasonable defaults (depends on resources assigned): "-Xms512m -Xmx4096m"
+
+infrastructureApi:
+  serviceAccount:
+    name: core-infra
+
+  image:
+    tag: "bugfix-fixing-issue-with-gateway-deployment-b32cb27"
+
+  autoscaling:
+    enabled: true
